@@ -3,11 +3,13 @@ import { GoogleGenAI, Chat, GenerateContentResponse } from "@google/genai";
 import { SYSTEM_INSTRUCTION } from "../constants.tsx";
 
 const getAIClient = () => {
-  // process.env.API_KEY is injected by Vite during the build process
-  const apiKey = process.env.API_KEY;
-  if (!apiKey || apiKey === "MISSING_KEY") {
-    console.warn("API key is not configured in the build environment.");
-    return new GoogleGenAI({ apiKey: "invalid_key" });
+  // Use Vite's process.env shim or look for global process
+  const apiKey = (process.env as any).API_KEY;
+  if (!apiKey || apiKey === "MISSING_KEY" || apiKey === "") {
+    console.warn("API key is not configured. Please set the API_KEY environment variable in Netlify.");
+    // We return a client anyway to avoid crashing the whole initialization, 
+    // but actual calls will fail gracefully in the try/catch.
+    return new GoogleGenAI({ apiKey: "invalid_placeholder" });
   }
   return new GoogleGenAI({ apiKey });
 };
