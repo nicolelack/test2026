@@ -3,12 +3,11 @@ import { GoogleGenAI, Chat, GenerateContentResponse } from "@google/genai";
 import { SYSTEM_INSTRUCTION } from "../constants.tsx";
 
 const getAIClient = () => {
-  // Safe check for process.env
-  const apiKey = (window as any).process?.env?.API_KEY || (process as any).env?.API_KEY;
-  if (!apiKey) {
-    console.warn("API key is missing. Please ensure process.env.API_KEY is configured.");
-    // Return a dummy client or handle as needed - the app will catch errors on call
-    return new GoogleGenAI({ apiKey: "MISSING_KEY" });
+  // process.env.API_KEY is injected by Vite during the build process
+  const apiKey = process.env.API_KEY;
+  if (!apiKey || apiKey === "MISSING_KEY") {
+    console.warn("API key is not configured in the build environment.");
+    return new GoogleGenAI({ apiKey: "invalid_key" });
   }
   return new GoogleGenAI({ apiKey });
 };
