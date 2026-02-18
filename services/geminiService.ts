@@ -1,12 +1,16 @@
 
 import { GoogleGenAI, Chat, GenerateContentResponse } from "@google/genai";
-import { SYSTEM_INSTRUCTION } from "../constants";
+import { SYSTEM_INSTRUCTION } from "../constants.tsx";
 
 const getAIClient = () => {
-  if (!process.env.API_KEY) {
-    throw new Error("API key is missing");
+  // Safe check for process.env
+  const apiKey = (window as any).process?.env?.API_KEY || (process as any).env?.API_KEY;
+  if (!apiKey) {
+    console.warn("API key is missing. Please ensure process.env.API_KEY is configured.");
+    // Return a dummy client or handle as needed - the app will catch errors on call
+    return new GoogleGenAI({ apiKey: "MISSING_KEY" });
   }
-  return new GoogleGenAI({ apiKey: process.env.API_KEY });
+  return new GoogleGenAI({ apiKey });
 };
 
 let chatInstance: Chat | null = null;
